@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#102a43"><title>JS Planner</title>
+<link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><div><div class="brand">JS <span>PLANNER</span></div><div class="sub">Persoonlijke maandplanning</div></div><button id="today">Vandaag</button></header>
+<main>
+<section class="toolbar"><button id="prev" aria-label="Vorige maand">‹</button><h1 id="month"></h1><button id="next" aria-label="Volgende maand">›</button></section>
+<section class="legend"><span><i class="police"></i>Politie</span><span><i class="scenario"></i>Scenariotraining</span><span><i class="senior"></i>Seniortraining</span><span><i class="other"></i>Overig</span></section>
+<div class="week"><b>ma</b><b>di</b><b>wo</b><b>do</b><b>vr</b><b>za</b><b>zo</b></div>
+<section id="calendar" class="calendar"></section>
+<p class="hint">Klik op een dag om iets toe te voegen. Klik op een gekleurd blok om de volledige afspraak te bekijken.</p>
+</main>
+<dialog id="editor"><form method="dialog" id="form"><div class="modal-head"><div><small id="editorLabel">PLANNING</small><h2 id="dateTitle"></h2></div><button class="close" value="cancel" aria-label="Sluiten">×</button></div>
+<input type="hidden" id="eventId"><label>Activiteit<select id="activity" required></select></label>
+<div class="row"><label>Begintijd<input id="start" type="time"></label><label>Eindtijd<input id="end" type="time"></label></div>
+<label>Locatie / organisatie<input id="location" placeholder="Optioneel"></label><label>Notities<textarea id="notes" rows="3" placeholder="Optioneel"></textarea></label>
+<div class="actions"><button type="button" id="delete" class="danger">Verwijderen</button><span></span><button value="cancel" class="secondary">Annuleren</button><button type="submit" id="save">Opslaan</button></div></form></dialog>
+<script src="app.js"></script>
+</body></html>

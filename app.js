@@ -32,7 +32,14 @@ function merge(a,b){const m=new Map();for(const e of a.concat(b)){if(!e||!e.id)c
 function sameSet(a,b){const n=x=>JSON.stringify([...x].sort((p,q)=>String(p.id).localeCompare(String(q.id))));return n(a)===n(b)}
 
 /* ---------- kalender ---------- */
-function meta(title){for(const [group,type,names] of activities)if(names.includes(title))return{group,type};return{group:'Overig',type:'other'}}
+function meta(title){
+  const t=String(title||'');
+  for(const [group,type,names] of activities)if(names.includes(t))return{group,type};
+  if(/\bhovj\b|\bh\.?o\.?v\.?j\b|politie|\bzsm\b|piket|dagdienst|ochtenddienst|middagdienst|avonddienst|nachtdienst/i.test(t))return{group:'Politie',type:'police'};
+  if(/seniortraining/i.test(t))return{group:'Seniortraining',type:'senior'};
+  if(/scenario/i.test(t))return{group:'Scenariotraining',type:'scenario'};
+  return{group:'Overig',type:'other'};
+}
 function short(t){if(t.startsWith('Scenariotraining '))return t.replace('Scenariotraining ','').replace(' gemeente','');if(t.startsWith('Seniortraining '))return t.replace('Seniortraining ','');return t}
 function span(e){if(!e.start&&!e.end)return'';const over=e.start&&e.end&&e.end<e.start;return [e.start,e.end].filter(Boolean).join('–')+(over?' (+1)':'')}
 function options(){
@@ -54,8 +61,8 @@ function render(){
     cell.innerHTML=`<div class="num">${d.getDate()}</div>`;
     events.filter(e=>e.date===dk).sort((a,b)=>(a.start||'99:99').localeCompare(b.start||'99:99')).forEach(e=>{
       const b=document.createElement('button');
-      b.type='button';b.className=`event ${e.type||'other'}`;
-      b.textContent=(e.start?e.start+' ':'')+short(e.title);
+      b.type='button';b.className='event '+meta(e.title).type;
+      const lbl=document.createElement('span');lbl.className='lbl';lbl.textContent=(e.start?e.start+' ':'')+short(e.title);b.appendChild(lbl);
       b.title=[e.title,span(e),e.location,e.notes].filter(Boolean).join(' · ');
       b.onclick=x=>{x.stopPropagation();openExisting(e)};
       cell.appendChild(b);
@@ -277,7 +284,20 @@ function takePairing(){
 }
 
 /* ---------- start ---------- */
+function herclassificeer(){
+  const list=allEvents();let veranderd=false;
+  const fixed=list.map(e=>{
+    if(e.deleted||!e.title)return e;
+    const m=meta(e.title);
+    if(e.type===m.type&&e.group===m.group)return e;
+    veranderd=true;
+    return Object.assign({},e,{type:m.type,group:m.group,updatedAt:now()});
+  });
+  if(veranderd)save(fixed);
+  return veranderd;
+}
 const paired=takePairing();
+const hersteld=herclassificeer();
 options();render();showStatus();
-sync().then(ok=>{if(paired&&ok)flash('Dit apparaat is gekoppeld')});
+sync().then(ok=>{if(paired&&ok)flash('Dit apparaat is gekoppeld');else if(hersteld&&ok)flash('Kleuren bijgewerkt')});
 if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));

@@ -205,10 +205,12 @@ $('#syncBtn').onclick=()=>{
   $('#tokenField').value='';
   $('#tokenField').placeholder=c.token?'Token is opgeslagen op dit apparaat':'github_pat_…';
   $('#disconnect').style.display=c.token?'':'none';
+  $('#pairBtn').style.display=c.token?'':'none';
+  hidePair();
   $('#syncNow').style.display=c.token?'':'none';
   sdlg.showModal();
 };
-$('#syncClose').onclick=()=>sdlg.close();
+$('#syncClose').onclick=()=>{hidePair();sdlg.close()};
 $('#connect').onclick=async()=>{
   const m=/^\s*([\w.-]+)\s*\/\s*([\w.-]+)\s*$/.exec($('#repoField').value||'');
   if(!m){alert('Vul de repository in als eigenaar/naam, bijvoorbeeld JSLegalForce/planner-data');return}
@@ -242,6 +244,40 @@ window.addEventListener('offline',showStatus);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync()});
 setInterval(()=>{if(!document.hidden)sync()},90000);
 
+
+/* ---------- ander apparaat koppelen via QR ---------- */
+function b64url(s){return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+function unb64url(s){s=s.replace(/-/g,'+').replace(/_/g,'/');return atob(s+'='.repeat((4-s.length%4)%4))}
+function pairUrl(){
+  const c=cfg();if(!c||!c.token)return'';
+  return location.origin+location.pathname+'#pair='+b64url(JSON.stringify({o:c.owner,r:c.repo,t:c.token}));
+}
+function showPair(){
+  const box=$('#pairBox'),url=pairUrl();
+  if(!url){alert('Koppel dit apparaat eerst.');return}
+  try{
+    const q=qrcode(0,'M');q.addData(url);q.make();
+    $('#qr').innerHTML=q.createSvgTag({cellSize:5,margin:8,scalable:true});
+    box.hidden=false;
+  }catch(e){alert('De koppelcode kon niet worden gemaakt.')}
+}
+function hidePair(){$('#pairBox').hidden=true;$('#qr').innerHTML=''}
+$('#pairBtn').onclick=showPair;
+$('#pairClose').onclick=hidePair;
+function takePairing(){
+  const m=/[#&]pair=([A-Za-z0-9\-_]+)/.exec(location.hash||'');
+  if(!m)return false;
+  history.replaceState(null,'',location.pathname+location.search);
+  try{
+    const p=JSON.parse(unb64url(m[1]));
+    if(!p.o||!p.r||!p.t)throw 0;
+    setCfg({owner:p.o,repo:p.r,path:'events.json',branch:'main',token:p.t});
+    return true;
+  }catch{alert('Deze koppelcode is niet geldig.');return false}
+}
+
 /* ---------- start ---------- */
-options();render();showStatus();sync();
+const paired=takePairing();
+options();render();showStatus();
+sync().then(ok=>{if(paired&&ok)flash('Dit apparaat is gekoppeld')});
 if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));

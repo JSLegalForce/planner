@@ -3,3 +3,13 @@
 #backupDlg{padding:24px}
 #backupDlg .actions{grid-template-columns:auto 1fr auto}
 @media(max-width:700px){.ghost{padding:9px 11px;font-size:13px}.head-actions{gap:6px}header button{padding:9px 12px;font-size:13px}}
+.sync{display:flex;align-items:center;gap:7px}
+.dot{width:9px;height:9px;border-radius:50%;background:#8aa0b0;flex:0 0 auto}
+.dot.ok{background:#3ddc97}.dot.busy{background:#ffd166;animation:pulse 1s infinite}.dot.warn{background:#ffa53d}.dot.err{background:#ff6b6b}.dot.off{background:#8aa0b0}
+@keyframes pulse{50%{opacity:.35}}
+#syncDlg{padding:24px}
+#syncDlg .note{font-size:13px;color:#5d7181;line-height:1.5;margin:0 0 6px}
+#syncDlg .actions{grid-template-columns:auto 1fr auto auto}
+.flash{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);background:#102a43;color:#fff;padding:12px 18px;border-radius:10px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;box-shadow:0 10px 30px #0b233933;z-index:9}
+.flash.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:700px){#syncText{display:none}.sync{padding:9px 11px}#syncDlg .actions{grid-template-columns:auto 1fr auto}#syncDlg .actions .secondary{display:none}}

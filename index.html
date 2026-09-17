@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header><div><div class="brand">JS <span>PLANNER</span></div><div class="sub">Persoonlijke maandplanning</div></div><div class="head-actions"><button id="backup" class="ghost" title="Back-up maken of terugzetten">Back-up</button><button id="today">Vandaag</button></div></header>
+<header><div><div class="brand">JS <span>PLANNER</span></div><div class="sub">Persoonlijke maandplanning</div></div><div class="head-actions"><button id="syncBtn" class="ghost sync" title="Synchronisatie"><span id="syncDot" class="dot off"></span><span id="syncText">Sync</span></button><button id="backup" class="ghost" title="Back-up maken of terugzetten">Back-up</button><button id="today">Vandaag</button></div></header>
 <main>
 <section class="toolbar"><button id="prev" aria-label="Vorige maand">‹</button><h1 id="month"></h1><button id="next" aria-label="Volgende maand">›</button></section>
 <section class="legend"><span><i class="police"></i>Politie</span><span><i class="scenario"></i>Scenariotraining</span><span><i class="senior"></i>Seniortraining</span><span><i class="other"></i>Overig</span></section>
@@ -28,5 +28,12 @@
 <p class="hint" style="text-align:left;margin:0 0 14px">Je planning staat alleen in deze browser. Maak af en toe een back-upbestand, dan kun je hem terugzetten op een ander apparaat of na het wissen van je browsergegevens.</p>
 <div class="actions"><button type="button" id="exportBtn">Back-up downloaden</button><span></span><button type="button" id="importBtn" class="secondary">Bestand terugzetten</button></div>
 <input type="file" id="importFile" accept="application/json,.json" hidden></dialog>
+<dialog id="syncDlg"><div class="modal-head"><div><small>SYNCHRONISATIE</small><h2>Zelfde planning op al je apparaten</h2></div><button type="button" class="close" id="syncClose" aria-label="Sluiten">×</button></div>
+<p class="note">Je planning wordt bewaard in een privé-repository op GitHub. Elk apparaat waar je hetzelfde token invult, werkt bij en leest mee. Zonder internet blijft alles gewoon lokaal werken; zodra je weer online bent, wordt het samengevoegd.</p>
+<label>Repository<input id="repoField" placeholder="JSLegalForce/planner-data" autocapitalize="off" autocorrect="off" spellcheck="false"></label>
+<label>Toegangstoken<input id="tokenField" type="password" placeholder="github_pat_…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></label>
+<p class="note">Token maken: GitHub → Settings → Developer settings → Fine-grained tokens → alleen deze repository, rechten <b>Contents: Read and write</b>. Het token blijft op dit apparaat staan en wordt nergens anders heen gestuurd.</p>
+<div class="actions"><button type="button" id="disconnect" class="danger">Ontkoppelen</button><span></span><button type="button" id="syncNow" class="secondary">Nu synchroniseren</button><button type="button" id="connect">Koppelen</button></div></dialog>
+<div id="flash" class="flash"></div>
 <script src="app.js"></script>
 </body></html>

@@ -1,6 +1,6 @@
 /* JS Planner — maandplanning met optionele GitHub-synchronisatie */
 const activities=[
-['Politie','police',['Dagdienst','Ochtenddienst','Middagdienst','Nachtdienst','ZSM ochtend','ZSM middag']],
+['Politie','police',['Dagdienst','Ochtenddienst','Middagdienst','Nachtdienst','ZSM ochtend','ZSM middag','Netwerkdag drugs','Commissie geweldsaanwending','PRVT']],
 ['Scenariotraining','scenario',['Scenariotraining Velsen','Scenariotraining Alkmaar','Scenariotraining Heemskerk','Scenariotraining BUCH gemeente','Scenariotraining Pijnacker','Scenariotraining Hilversum','Scenariotraining Leiden']],
 ['Seniortraining','senior',['Seniortraining BUCH','Seniortraining Velsen']],
 ['Overig','other',['Training Solutions','Brunssum']]
@@ -35,17 +35,17 @@ function sameSet(a,b){const n=x=>JSON.stringify([...x].sort((p,q)=>String(p.id).
 function meta(title){
   const t=String(title||'');
   for(const [group,type,names] of activities)if(names.includes(t))return{group,type};
-  if(/\bhovj\b|\bh\.?o\.?v\.?j\b|politie|\bzsm\b|piket|dagdienst|ochtenddienst|middagdienst|avonddienst|nachtdienst/i.test(t))return{group:'Politie',type:'police'};
+  if(/\bhovj\b|\bh\.?o\.?v\.?j\b|politie|\bzsm\b|piket|dagdienst|ochtenddienst|middagdienst|avonddienst|nachtdienst|netwerkdag|commissie\s*geweld|geweldsaanwending|\bprvt\b/i.test(t))return{group:'Politie',type:'police'};
   if(/seniortraining/i.test(t))return{group:'Seniortraining',type:'senior'};
   if(/scenario/i.test(t))return{group:'Scenariotraining',type:'scenario'};
   return{group:'Overig',type:'other'};
 }
 function short(t){if(t.startsWith('Scenariotraining '))return t.replace('Scenariotraining ','').replace(' gemeente','');if(t.startsWith('Seniortraining '))return t.replace('Seniortraining ','');return t}
 /* zachte afbreekstreepjes in samengestelde woorden: Ochtend-dienst, Senior-training */
-function soft(t){return String(t).replace(/([a-zà-ÿ]{3,})(dienst|training|trainingen)\b/gi,'$1\u00AD$2')}
+function soft(t){return String(t).replace(/([a-zà-ÿ]{3,})(dienst|training|trainingen|aanwending)\b/gi,'$1\u00AD$2')}
 function span(e){if(!e.start&&!e.end)return'';const over=e.start&&e.end&&e.end<e.start;return [e.start,e.end].filter(Boolean).join('–')+(over?' (+1)':'')}
 function options(){
-  const own=custom();
+  const std=activities.flatMap(a=>a[2]),own=custom().filter(x=>!std.includes(x));
   activity.innerHTML=activities.map(([g,,n])=>`<optgroup label="${g}">${n.map(x=>`<option>${esc(x)}</option>`).join('')}</optgroup>`).join('')
     +(own.length?`<optgroup label="Eigen activiteiten">${own.map(x=>`<option>${esc(x)}</option>`).join('')}</optgroup>`:'')
     +'<optgroup label="Nieuw"><option value="__new">+ Nieuwe activiteit</option></optgroup>';

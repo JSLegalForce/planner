@@ -41,6 +41,8 @@ function meta(title){
   return{group:'Overig',type:'other'};
 }
 function short(t){if(t.startsWith('Scenariotraining '))return t.replace('Scenariotraining ','').replace(' gemeente','');if(t.startsWith('Seniortraining '))return t.replace('Seniortraining ','');return t}
+/* zachte afbreekstreepjes in samengestelde woorden: Ochtend-dienst, Senior-training */
+function soft(t){return String(t).replace(/([a-zà-ÿ]{3,})(dienst|training|trainingen)\b/gi,'$1\u00AD$2')}
 function span(e){if(!e.start&&!e.end)return'';const over=e.start&&e.end&&e.end<e.start;return [e.start,e.end].filter(Boolean).join('–')+(over?' (+1)':'')}
 function options(){
   const own=custom();
@@ -62,7 +64,8 @@ function render(){
     events.filter(e=>e.date===dk).sort((a,b)=>(a.start||'99:99').localeCompare(b.start||'99:99')).forEach(e=>{
       const b=document.createElement('button');
       b.type='button';b.className='event '+meta(e.title).type;
-      const lbl=document.createElement('span');lbl.className='lbl';lbl.textContent=(e.start?e.start+' ':'')+short(e.title);b.appendChild(lbl);
+      if(e.start){const tm=document.createElement('span');tm.className='tm';tm.textContent=e.start;b.appendChild(tm)}
+      const lbl=document.createElement('span');lbl.className='lbl';lbl.textContent=soft(short(e.title));b.appendChild(lbl);
       b.title=[e.title,span(e),e.location,e.notes].filter(Boolean).join(' · ');
       b.onclick=x=>{x.stopPropagation();openExisting(e)};
       cell.appendChild(b);
@@ -70,7 +73,17 @@ function render(){
     cell.onclick=()=>openNew(dk);
     cal.appendChild(cell);
   }
+  fitLabels();
 }
+/* lange woorden niet midden in het woord afbreken: tekst iets verkleinen tot het past */
+function fitLabels(){
+  cal.querySelectorAll('.event .lbl').forEach(l=>{
+    l.style.fontSize='';
+    let f=parseFloat(getComputedStyle(l).fontSize);
+    while(l.scrollWidth>l.clientWidth+.5&&f>7){f-=.5;l.style.fontSize=f+'px'}
+  });
+}
+let fitT;addEventListener('resize',()=>{clearTimeout(fitT);fitT=setTimeout(fitLabels,120)});
 function prettyDate(d){return new Date(d+'T12:00:00').toLocaleDateString('nl-NL',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
 function resetFields(){$('#eventId').value='';$('#location').value='';$('#notes').value='';$('#start').value='';$('#end').value='';activity.selectedIndex=0}
 function openNew(d){editing=null;selectedDate=d;options();resetFields();$('#delete').style.visibility='hidden';$('#editorLabel').textContent='NIEUWE PLANNING';$('#dateTitle').textContent=prettyDate(d);dlg.showModal()}

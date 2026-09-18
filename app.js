@@ -1,6 +1,6 @@
 /* JS Planner — maandplanning met optionele GitHub-synchronisatie */
 const activities=[
-['Politie','police',['Dagdienst','Ochtenddienst','Middagdienst','Nachtdienst','ZSM ochtend','ZSM middag','Netwerkdag drugs','Commissie geweldsaanwending','PRVT']],
+['Politie','police',['Dagdienst','Ochtenddienst','Middagdienst','Nachtdienst','ZSM ochtend','ZSM middag','Netwerkdag drugs','Commissie geweldsaanwending','PRVT','OIBT']],
 ['Scenariotraining','scenario',['Scenariotraining Velsen','Scenariotraining Alkmaar','Scenariotraining Heemskerk','Scenariotraining BUCH gemeente','Scenariotraining Pijnacker','Scenariotraining Hilversum','Scenariotraining Leiden']],
 ['Seniortraining','senior',['Seniortraining BUCH','Seniortraining Velsen']],
 ['Overig','other',['Training Solutions','Brunssum']]
@@ -35,7 +35,7 @@ function sameSet(a,b){const n=x=>JSON.stringify([...x].sort((p,q)=>String(p.id).
 function meta(title){
   const t=String(title||'');
   for(const [group,type,names] of activities)if(names.includes(t))return{group,type};
-  if(/\bhovj\b|\bh\.?o\.?v\.?j\b|politie|\bzsm\b|piket|dagdienst|ochtenddienst|middagdienst|avonddienst|nachtdienst|netwerkdag|commissie\s*geweld|geweldsaanwending|\bprvt\b/i.test(t))return{group:'Politie',type:'police'};
+  if(/\bhovj\b|\bh\.?o\.?v\.?j\b|politie|\bzsm\b|piket|dagdienst|ochtenddienst|middagdienst|avonddienst|nachtdienst|netwerkdag|commissie\s*geweld|geweldsaanwending|\bprvt\b|\boibt\b/i.test(t))return{group:'Politie',type:'police'};
   if(/seniortraining/i.test(t))return{group:'Seniortraining',type:'senior'};
   if(/scenario/i.test(t))return{group:'Scenariotraining',type:'scenario'};
   return{group:'Overig',type:'other'};

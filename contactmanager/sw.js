@@ -1,27 +1,40 @@
-/* Service worker – JS Legal Force Contactmanager PRO
-   Zorgt dat de app offline werkt. Slaat alleen applicatiebestanden op, nooit contactgegevens
-   (die staan in IndexedDB). Verzoeken naar andere domeinen worden niet onderschept. */
-const CACHE = 'jslf-cm-v1';
-const CORE = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png'];
+/* JS Legal Force – Contactmanager PRO offline cache.
+   Alleen eigen caches en eigen URL-pad beheren; laat andere JS Legal Force-apps intact. */
+const PREFIX='jslf-cm-';
+const CACHE='jslf-cm-v2';
+const CORE=['./','./index.html','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
+const scopePath=new URL(self.registration.scope).pathname;
 
-self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(CORE)).then(() => self.skipWaiting()));
+self.addEventListener('install', event => {
+  event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE)).then(()=>self.skipWaiting()));
 });
-self.addEventListener('activate', (e) => {
-  e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
+
+self.addEventListener('activate', event => {
+  event.waitUntil(caches.keys().then(keys =>
+    Promise.all(keys.filter(key=>key.startsWith(PREFIX)&&key!==CACHE).map(key=>caches.delete(key)))
+  ).then(()=>self.clients.claim()));
 });
-self.addEventListener('fetch', (e) => {
-  const req = e.request;
-  const url = new URL(req.url);
-  if (req.method !== 'GET' || url.origin !== self.location.origin) return;
-  // Pagina: eerst netwerk (zodat updates direct binnenkomen), offline uit cache
-  if (req.mode === 'navigate') {
-    e.respondWith(fetch(req).then((res) => { const copy = res.clone(); caches.open(CACHE).then((c) => c.put('./index.html', copy)); return res; }).catch(() => caches.match('./index.html')));
+
+self.addEventListener('fetch', event => {
+  const request=event.request;
+  const url=new URL(request.url);
+  if(request.method!=='GET'||url.origin!==self.location.origin||!url.pathname.startsWith(scopePath)) return;
+
+  if(request.mode==='navigate'){
+    event.respondWith(fetch(request).then(response=>{
+      if(response.ok){
+        const copy=response.clone();
+        caches.open(CACHE).then(cache=>cache.put('./index.html',copy)).catch(()=>{});
+      }
+      return response;
+    }).catch(()=>caches.open(CACHE).then(cache=>cache.match('./index.html'))));
     return;
   }
-  // Overige bestanden (met hash in de naam): uit cache, anders netwerk en bewaren
-  e.respondWith(caches.match(req).then((hit) => hit || fetch(req).then((res) => {
-    if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); }
-    return res;
-  })));
+  event.respondWith(caches.open(CACHE).then(async cache=>{
+    const hit=await cache.match(request);
+    if(hit) return hit;
+    const response=await fetch(request);
+    if(response.ok) cache.put(request,response.clone()).catch(()=>{});
+    return response;
+  }));
 });

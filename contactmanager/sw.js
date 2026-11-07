@@ -1,7 +1,7 @@
 /* JS Legal Force – Contactmanager PRO offline cache.
    Alleen eigen caches en eigen URL-pad beheren; laat andere JS Legal Force-apps intact. */
 const PREFIX='jslf-cm-';
-const CACHE='jslf-cm-v4';
+const CACHE='jslf-cm-v5';
 const CORE=['./','./index.html','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
 const scopePath=new URL(self.registration.scope).pathname;
 

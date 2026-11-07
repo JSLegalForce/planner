@@ -1,0 +1,17 @@
+{
+  "name": "JS Legal Force – Contactmanager PRO",
+  "short_name": "Contactmanager",
+  "description": "Lokaal beheer van BOA- en handhavingscontacten met e-maildrop en Google Contacten-export.",
+  "lang": "nl",
+  "start_url": "./#dashboard",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f6fa",
+  "theme_color": "#0b1f3a",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
